@@ -13,6 +13,21 @@ void print_help(const char* const& prog_name) {
 		 << "-h show this help screen" << endl;
 }
 
+bool validate_name(const string& filename) {
+	size_t length = filename.length();
+
+	for (size_t i = 0; i < length; ++i) {
+		size_t value = (int)filename[i];
+
+		if (value == 49 || (value > 64 && value < 91) 
+			|| (value > 96 && value < 123)) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 int main(int argc, char** argv) {
 	string name;
 	size_t option;
@@ -20,27 +35,38 @@ int main(int argc, char** argv) {
 	if (argc == 1) {
 		name = ".tmp.sav";
 		option = 0;
-	} else if (argc == 2) {
+	}
+	else if (argc == 2) {
 		if (!strcmp(argv[1], "-h")) {
 			print_help(argv[0]);
 			return 0;
-		} else if (!strcmp(argv[1], "-e") || !strcmp(argv[1], "-d")) {
+		}
+		else if (!strcmp(argv[1], "-e") || !strcmp(argv[1], "-d")) {
 			cout << "Invalid usage" << endl;
 			print_help(argv[0]);
-			return 0;
+			return 1;
 		}
 		
-		name = argv[1];
-		option = 0;
-	} else if (argc == 3) {
+		if (validate_name(name)) {
+			name = argv[1];
+			option = 0;
+		}
+		else {
+			cout << "Invalid filename" << endl;
+			return 2;
+		}
+	}
+	else if (argc == 3) {
 		if (!strcmp(argv[1], "-e")) {
 			option = 1;
 			name = argv[2];
-		} else if (!strcmp(argv[1], "-d")) {
+		}
+		else if (!strcmp(argv[1], "-d")) {
 			option = 2;
 			name = argv[2];
 		}
-	} else {
+	}
+	else {
 		cout << "Invalid usage." << endl;
 		print_help(argv[0]);
 		return 1;

@@ -63,7 +63,8 @@ void encryptor::decrypt_file(const string& file_name) const {
 				throw runtime_error("Password is invalid");
 			}
 		}
-	} else {
+	}
+	else {
 		throw runtime_error("Password is invalid");
 	}
 	

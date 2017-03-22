@@ -19,10 +19,12 @@ void text_editor::run_text_editor() {
 			
 			if (!command.compare("i")) {
 				write_mode = true;
-			} else if (!command.compare("help")) {
+			} 
+			else if (!command.compare("help")) {
 				print_help();
 			}
-		} else {
+		} 
+		else {
 			//char input = (char)NULL;
 		}
 	}
