@@ -1,8 +1,12 @@
 // Logs Linux Keys
+
 // Run with flag -lX11
 //
-//Still need: Arrow Keys, Shifts, Caps Locks?
-//Ignore warnings
+//This only really works for letters and numbers, the goal would be
+//the equivalent to the command 'sudo evtest /dev/input/by-path/platform-i8042-serio-0-event-kbd'
+// This command shows all presses and releases of every single keyboard button, read directly from the device
+
+
 
 //These should be standard libraries for LINUX
 #include <X11/Xlib.h>
