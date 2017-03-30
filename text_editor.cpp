@@ -1,5 +1,5 @@
 #include <iostream>
-#include <string>
+#include <ncurses>
 #include "text_editor.h"
 
 using namespace std;
@@ -25,7 +25,7 @@ void text_editor::run_text_editor() {
 			}
 		} 
 		else {
-			//char input = (char)NULL;
+	                //TODO
 		}
 	}
 }
