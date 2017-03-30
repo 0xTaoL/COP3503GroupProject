@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <iostream>
-//UPDATED: Now gives an integer for every keyboard input.
+//UPDATED: Now gives an integer for every keyboard input. BUT not in ASCII unfortunately
 //It requires root access though because 
 //it needs to read directly from the device "/dev/input/by-path/platform-i8042-serio-0-event-kbd"
 //This is the universal linux keyboard device 
