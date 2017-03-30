@@ -1,5 +1,4 @@
 #include <iostream>
-#include <ncurses>
 #include "text_editor.h"
 
 using namespace std;
@@ -11,23 +10,7 @@ text_editor::text_editor(const string& save_file):
 
 void text_editor::run_text_editor() {
 	string command = "";
-	
-	while (command.compare("quit")) {
-		if (write_mode == false) {
-			cout << "Enter a command: ";
-			cin >> command;
-			
-			if (!command.compare("i")) {
-				write_mode = true;
-			} 
-			else if (!command.compare("help")) {
-				print_help();
-			}
-		} 
-		else {
-	                //TODO
-		}
-	}
+        //TODO impliment display with ncurses
 }
 
 void text_editor::print_help() {

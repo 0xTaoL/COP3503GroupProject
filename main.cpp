@@ -16,11 +16,13 @@ void print_help(const char* const& prog_name) {
 bool validate_name(const string& filename) {
 	size_t length = filename.length();
 
-	for (size_t i = 0; i < length; ++i) {
-		size_t value = (int)filename[i];
+        if (filename[0] == '-') {
+                return false;
+        }
 
-		if (value == 49 || (value > 64 && value < 91) 
-			|| (value > 96 && value < 123)) {
+	for (size_t i = 0; i < length; ++i) {
+		if (filename[i] == 49 || (filename[i] > 64 && filename[i] < 91)
+			|| (filename[i] > 96 && filename[i] < 123)) {
 			return false;
 		}
 	}
@@ -41,13 +43,8 @@ int main(int argc, char** argv) {
 			print_help(argv[0]);
 			return 0;
 		}
-		else if (!strcmp(argv[1], "-e") || !strcmp(argv[1], "-d")) {
-			cout << "Invalid usage" << endl;
-			print_help(argv[0]);
-			return 1;
-		}
 		
-		if (validate_name(name)) {
+		if (validate_name(argv[1])) {
 			name = argv[1];
 			option = 0;
 		}
@@ -65,6 +62,10 @@ int main(int argc, char** argv) {
 			option = 2;
 			name = argv[2];
 		}
+                else {
+                        cout << "Invalid usage. Use -h for help.";
+                        return 1;
+                }
 	}
 	else {
 		cout << "Invalid usage." << endl;
@@ -124,4 +125,6 @@ int main(int argc, char** argv) {
 		break;
 	}
 	}
+        
+        return 0;
 }
