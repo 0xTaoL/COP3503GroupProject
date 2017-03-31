@@ -1,2 +1,2 @@
-tedit: main.cpp text_editor.cpp text_editor.h encryption.cpp encryption.h 
+tedit: main.cpp text_editor* encryption* display*
 	g++ -o tedit *.cpp -Wall -std=c++11 -lncurses

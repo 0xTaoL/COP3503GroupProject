@@ -27,11 +27,10 @@ void encryptor::encrypt_file(const string& file_name) const {
         }
         tmp_file.put('\n');
 
-	string contents;
-	while (getline(file, contents)) {
-                for (size_t i = 0; i < contents.length(); ++i) {
-                        tmp_file.put(contents[i] ^ key[i % key.length()]);
-                }
+        size_t count = 0;
+	while (file.good()) {
+                tmp_file.put(file.get() ^ key[count % key.length()]);
+                ++count;
         }
         
 	file.close();
@@ -49,24 +48,18 @@ void encryptor::decrypt_file(const string& file_name) const {
                 throw invalid_argument("File does not exist");
         }
 
-        string test_key;
-        getline(file, test_key);
-        if (test_key.length() == key.length()) {
-                for (size_t i = 0; i < test_key.length(); ++i) {
-                        if ((key[i] >> 1) != test_key[i]) {
-                                throw invalid_argument("Incorrect Password");
-                        }
+        char test_key[256];
+        file.getline(test_key, 256, '\n');
+        for (size_t i = 0; i < key.length(); ++i) {
+                if ((key[i] >> 1) != test_key[i]) {
+                        throw invalid_argument("Incorrect Password");
                 }
-        }
-        else {
-            throw invalid_argument("Incorrect Password");
         }
 
-        string contents;
-        while (getline(file, contents)) {
-                for (size_t i = 0; i < contents.length(); ++i) {
-                        tmp_file.put(contents[i] ^ key[i % key.length()]);
-                }
+        size_t count = 0;
+        while (file.good()) {
+                tmp_file.put(file.get() ^ key[count % key.length()]);
+                ++count;
         }
 
         file.close();

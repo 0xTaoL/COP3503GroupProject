@@ -6,7 +6,7 @@
 class display {
 
 public:
-    void diplay_editor_mode(std::string);
+    void diplay_editor(std::string);
     void prompt_command();
 };
 

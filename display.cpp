@@ -3,7 +3,7 @@
 
 using namespace std;
 
-void display_editor_mode(string file_name) {
+void display_editor(string file_name) {
     initscr();
     
     cbreak();
