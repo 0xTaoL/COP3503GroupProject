@@ -4,11 +4,10 @@
 #include <string>
 
 class display {
-    unsigned char size[2];
 
 public:
-    display(std::string, unsigned char*);
-    void update();
+    void diplay_editor_mode(std::string);
+    void prompt_command();
 };
 
 #endif
