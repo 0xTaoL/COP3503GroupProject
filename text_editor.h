@@ -6,6 +6,10 @@
 class text_editor {
 	const std::string temp_file, save_file;
 	bool write_mode;
+
+        void read_file();
+        void write_file();
+        bool command_prompt();
 	
 public:
 	text_editor(const std::string& save_file);
