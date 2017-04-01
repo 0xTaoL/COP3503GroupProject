@@ -20,43 +20,51 @@ void text_editor::write_file() const {
 void text_editor::run_text_editor() {
 	string command = "";
 
-        initscr();
+	initscr();
 
-        cbreak();
-        noecho();
-        keypad(stdscr, true);
+	cbreak();
+	noecho();
+	keypad(stdscr, true);
 
-        int ch = 0;
-        while (ch = getch()) {
-                if (ch == 27) {
-                        //turn on no delay to check if esc or alt
-                        nodelay(stdscr, true);
+	int ch = 0;
+	while (ch = getch()) {
+		if (ch == 27) {
+			//turn on no delay to check if esc or alt
+			nodelay(stdscr, true);
 
-                        //check if esc then go to command screen
-                        if (getch() == -1) {
-                                if (command_prompt()) break;
-                        }
+			//check if esc then go to command screen
+			if (getch() == -1 && command_prompt()) {
+				 break;
+			}
 
-                    //turn off nodelay to wait for next keypress
-                        nodelay(stdscr, false);
-                }
-                else {
-                        switch (ch) {
-                                case KEY_UP:
-                                    break;
-                        }
+			//turn off nodelay to wait for next keypress
+			nodelay(stdscr, false);
+		}
+		else {
+			switch (ch) {
+			case KEY_UP:
+				break;
+			case KEY_RIGHT:
+				break;
+			case KEY_DOWN:
+				break;
+			case KEY_LEFT:
+				break;
+			}
+		}
 
-        }
+		refresh();
+	}
 
-        endwin();
+	endwin();
 }
 
 bool text_editor::command_prompt() {
-
+	return true;
 }
 
 void text_editor::print_help() const {
 	cout << "Commands:\n"
-		 << "i    -- start input\n"
-		 << "help -- this screen" << endl;
+ 		 << "i    -- start input\n"
+ 		 << "help -- this screen" << endl;
 }
