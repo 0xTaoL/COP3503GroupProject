@@ -26,6 +26,20 @@ void text_editor::run_text_editor() {
 	noecho();
 	keypad(stdscr, true);
 
+	//start screen output
+	refresh();
+
+	//create top bar window
+	unsigned int x_max, y_max;
+	getmaxyx(stdscr, y_max, x_max);
+	string message = "tedit: " + save_file;
+	WINDOW* top_bar = newwin(1, x_max - 1, 0, 0);
+	mvwprintw(top_bar, 0, (x_max - message.length()) / 2, "%s", message.c_str());
+	wrefresh(top_bar);
+
+	//set start position to y=1 to not overlap
+	move(1, 0);
+
 	int ch = 0;
 	while (ch = getch()) {
 		unsigned int x, y;
@@ -38,13 +52,15 @@ void text_editor::run_text_editor() {
 		else {
 			switch (ch) {
 			case KEY_UP:
-				--y;
+				if (y > 1)
+					--y;
 				break;
 			case KEY_RIGHT:
 				++x;
 				break;
 			case KEY_DOWN:
-				++y;
+				if (y < y_max - 2)
+					++y;
 				break;
 			case KEY_LEFT:
 				--x;
@@ -56,6 +72,7 @@ void text_editor::run_text_editor() {
 		refresh();
 	}
 
+	delwin(top_bar);
 	endwin();
 }
 
