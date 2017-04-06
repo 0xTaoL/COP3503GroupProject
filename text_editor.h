@@ -5,9 +5,9 @@
 
 class text_editor {
 	const std::string temp_file, save_file;
-	bool write_mode;
+	std::string buffer;
 
-	void read_file() const;
+	void read_file();
 	void write_file() const;
 	bool command_prompt();
 	void print_help() const;
@@ -15,6 +15,7 @@ class text_editor {
 	
 public:
 	text_editor(const std::string& save_file);
+	~text_editor();
 	void run_text_editor();
 };
 

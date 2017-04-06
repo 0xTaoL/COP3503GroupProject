@@ -21,8 +21,8 @@ bool validate_name(const string& filename) {
         }
 
 	for (size_t i = 0; i < length; ++i) {
-		if (filename[i] == 49 || (filename[i] > 64 && filename[i] < 91)
-			|| (filename[i] > 96 && filename[i] < 123)) {
+		if (!(filename[i] == 46 || (filename[i] > 64 && filename[i] < 91)
+			|| (filename[i] > 96 && filename[i] < 123))) {
 			return false;
 		}
 	}
@@ -77,7 +77,15 @@ int main(int argc, char** argv) {
 	case 0: //text editor
 	{
 		text_editor* text = new text_editor(name);
-		text->run_text_editor();
+		
+		try {
+			text->run_text_editor();
+		}
+		catch (runtime_error& e) {
+			delete text;
+			cout << e.what() << endl;
+			break;
+		}
 		
 		delete text;
 		break;

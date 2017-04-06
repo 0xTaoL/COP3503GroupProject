@@ -1,25 +1,12 @@
 #include <ncurses.h>
+#include <sys/stat.h>
+#include "encryption.h"
 #include "text_editor.h"
 
 using namespace std;
 
 text_editor::text_editor(const string& save_file):
 		save_file(save_file) {
-	write_mode = false;
-}
-
-void text_editor::read_file() const {
-    //TODO
-}
-
-void text_editor::write_file() const {
-    //TODO
-}
-
-void text_editor::run_text_editor() {
-	string command = "";
-	string buffer = "";
-
 	initscr();
 
 	cbreak();
@@ -28,6 +15,66 @@ void text_editor::run_text_editor() {
 
 	//start screen output
 	refresh();
+	
+	buffer = "";
+}
+
+text_editor::~text_editor() {
+	endwin();
+}
+
+void text_editor::read_file() {
+	struct stat st_buff;
+	
+	if (stat(save_file.c_str(), &st_buff) == 0) {
+		unsigned int x_max, y_max;
+		getmaxyx(stdscr, y_max, x_max);
+
+		WINDOW* prompt = newwin(1, x_max - 1, y_max - 1, 0);
+		keypad(prompt, true);
+
+		char ch = 0;
+		string command = "Enter password to file: ";
+		string key = "";
+		
+		waddstr(prompt, command.c_str());
+		waddstr(prompt, key.c_str());
+		wrefresh(prompt);
+		
+		while ((ch = wgetch(prompt)) != '\n') {
+			if (ch == 8 || ch == 127 || ch == 7) {
+				if (key.length() > 0) {
+					key.pop_back();
+				}
+			}
+			else {
+				key += ch;
+			}
+
+			wclear(prompt);
+			waddstr(prompt, command.c_str());
+			waddstr(prompt, key.c_str());
+			wrefresh(prompt);
+		}
+		
+		wclear(prompt);
+		wrefresh(prompt);
+		delwin(prompt);
+		
+		encryptor* ifile = new encryptor(key);
+		buffer = ifile->import_file(save_file);
+	}
+	else {
+		buffer = "";
+	}
+}
+
+void text_editor::write_file() const {
+    
+}
+
+void text_editor::run_text_editor() {
+	string command = "";
 
 	//create top bar window
 	unsigned int x_max, y_max;
@@ -37,12 +84,18 @@ void text_editor::run_text_editor() {
 	mvwprintw(top_bar, 0, (x_max - message.length()) / 2, "%s", message.c_str());
 	wrefresh(top_bar);
 
-	//set start position to y=1 to not overlap
-	move(1, 0);
+	//create text window
+	WINDOW* text_window = newwin(y_max - 2, x_max - 1, 1, 0);
+	
+	//load file into buffer
+	read_file();
+	waddstr(text_window, buffer.c_str());
+	wrefresh(text_window);
 
 	int ch = 0;
 	while (ch = getch()) {
 		unsigned int x, y;
+		size_t buffer_size = buffer.length();
 		getyx(stdscr, y, x);
 
 		//check if esc then go to command screen
@@ -52,28 +105,31 @@ void text_editor::run_text_editor() {
 		else {
 			switch (ch) {
 			case KEY_UP:
-				if (y > 1)
+				if (y > 0)
 					--y;
 				break;
 			case KEY_RIGHT:
-				++x;
+				if (y * x_max + x < buffer_size)
+					++x;
 				break;
 			case KEY_DOWN:
-				if (y < y_max - 2)
+				if (y < y_max - 2 && y * x_max + x < buffer_size)
 					++y;
 				break;
 			case KEY_LEFT:
-				--x;
+				if (x > 0) 
+					--x;
 				break;
 			}
 		}
 
-		move(y, x);
-		refresh();
+		wclear(text_window);
+		wmove(text_window, y, x);
+		waddstr(text_window, buffer.c_str());
+		wrefresh(text_window);
 	}
 
 	delwin(top_bar);
-	endwin();
 }
 
 bool text_editor::command_prompt() {
