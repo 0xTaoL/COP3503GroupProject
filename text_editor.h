@@ -2,6 +2,7 @@
 #define TEXT_EDITOR_H
 
 #include <string>
+#include <ncurses.h>
 
 class text_editor {
 	const std::string temp_file, save_file;

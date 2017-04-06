@@ -1,4 +1,3 @@
-#include <ncurses.h>
 #include <sys/stat.h>
 #include "encryption.h"
 #include "text_editor.h"
@@ -70,7 +69,7 @@ void text_editor::read_file() {
 }
 
 void text_editor::write_file() const {
-    
+    //TODO
 }
 
 void text_editor::run_text_editor() {
@@ -125,11 +124,16 @@ void text_editor::run_text_editor() {
 					--x;
 				break;
 			default:
-				if (ch == 8 || ch == 127 || ch == 7 || ch == KEY_BACKSPACE) {
-					buffer.pop_back();
+				if (ch == 8 || ch == 127 || ch == 7 
+						|| ch == KEY_BACKSPACE) {
+					if (buffer_pos > 0) {
+						buffer.erase(buffer_pos - 1, 1);
+						--x;
+					}
 				}
 				else {
-					buffer += ch;
+					buffer.insert(buffer_pos, 1, ch);
+					++x;
 				}
 			}
 		}
@@ -172,6 +176,10 @@ bool text_editor::command_prompt() {
 	delwin(p_cmd);
 	
 	if (command.compare("quit") == 0) {
+		return true;
+	}
+	else if (command.compare("save") == 0) {
+		//TODO
 		return true;
 	}
 	else {
