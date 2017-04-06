@@ -89,14 +89,18 @@ void text_editor::run_text_editor() {
 	
 	//load file into buffer
 	read_file();
-	waddstr(text_window, buffer.c_str());
+	wclear(text_window);
+	mvwaddstr(text_window, 0, 0, buffer.c_str());
+	wmove(text_window, 0, 0);
 	wrefresh(text_window);
 
 	int ch = 0;
 	while (ch = getch()) {
 		unsigned int x, y;
 		size_t buffer_size = buffer.length();
-		getyx(stdscr, y, x);
+		getyx(text_window, y, x);
+		getmaxyx(text_window, y_max, x_max);
+		size_t buffer_pos = y * x_max + x;
 
 		//check if esc then go to command screen
 		if (ch == 27 && command_prompt()) {
@@ -109,23 +113,30 @@ void text_editor::run_text_editor() {
 					--y;
 				break;
 			case KEY_RIGHT:
-				if (y * x_max + x < buffer_size)
+				if (buffer_pos + 1 < buffer_size)
 					++x;
 				break;
 			case KEY_DOWN:
-				if (y < y_max - 2 && y * x_max + x < buffer_size)
+				if (y < y_max && buffer_pos + x_max < buffer_size - 1)
 					++y;
 				break;
 			case KEY_LEFT:
 				if (x > 0) 
 					--x;
 				break;
+			default:
+				if (ch == 8 || ch == 127 || ch == 7 || ch == KEY_BACKSPACE) {
+					buffer.pop_back();
+				}
+				else {
+					buffer += ch;
+				}
 			}
 		}
 
 		wclear(text_window);
+		mvwaddstr(text_window, 0, 0, buffer.c_str());
 		wmove(text_window, y, x);
-		waddstr(text_window, buffer.c_str());
 		wrefresh(text_window);
 	}
 
