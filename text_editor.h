@@ -2,17 +2,22 @@
 #define TEXT_EDITOR_H
 
 #include <string>
+#include <ncurses.h>
 
 class text_editor {
 	const std::string temp_file, save_file;
-	bool write_mode;
+	std::string buffer;
+
+	void read_file();
+	void write_file() const;
+	bool command_prompt();
+	void print_help() const;
+	void save();
 	
 public:
 	text_editor(const std::string& save_file);
-	void issue_command();
+	~text_editor();
 	void run_text_editor();
-	void print_help();
-	void save();
 };
 
 #endif
