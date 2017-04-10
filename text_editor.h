@@ -13,6 +13,7 @@ class text_editor {
 	bool command_prompt();
 	void print_help() const;
 	void save();
+	void getstring(WINDOW*, const std::string&, std::string&);
 	
 public:
 	text_editor(const std::string& save_file);

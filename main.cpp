@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
 		try {
 			text->run_text_editor();
 		}
-		catch (runtime_error& e) {
+		catch (exception& e) {
 			delete text;
 			cout << e.what() << endl;
 			break;
@@ -133,6 +133,6 @@ int main(int argc, char** argv) {
 		break;
 	}
 	}
-        
-        return 0;
+	
+	return 0;
 }

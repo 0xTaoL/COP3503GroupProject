@@ -112,7 +112,7 @@ void text_editor::run_text_editor() {
 					--y;
 				break;
 			case KEY_RIGHT:
-				if (buffer_pos + 1 < buffer_size)
+				if (buffer_pos + 1 <= buffer_size)
 					++x;
 				break;
 			case KEY_DOWN:
@@ -154,37 +154,77 @@ bool text_editor::command_prompt() {
 	WINDOW* p_cmd = newwin(1, x_max - 1, y_max - 1, 0);
 	keypad(p_cmd, true);
 
-	char ch = 0;
-	string command = "";
-	while ((ch = wgetch(p_cmd)) != '\n') {
-		if (ch == 8 || ch == 127 || ch == 7) {
-			if (command.length() > 0) {
-				command.pop_back();
-			}
-		}
-		else {
-			command += ch;
-		}
-
-		wclear(p_cmd);
-		waddstr(p_cmd, command.c_str());
-		wrefresh(p_cmd);
-	}
-	
-	wclear(p_cmd);
-	wrefresh(p_cmd);
-	delwin(p_cmd);
+	string command;
+	getstring(p_cmd, "", command);
 	
 	if (command.compare("quit") == 0) {
+		delwin(p_cmd);
 		return true;
 	}
 	else if (command.compare("save") == 0) {
-		//TODO
+		string save, password;
+		
+		if (save_file.compare(".tmp.sav") == 0) {
+			getstring(p_cmd, "Save name: ", save);
+			getstring(p_cmd, "Password: ", password);
+		}
+		else {
+			save = save_file;
+			getstring(p_cmd, "Password: ", password);
+		}
+		
+		encryptor* export_data = new encryptor(password);
+		
+		try {
+			export_data->export_file(save, buffer);
+		}
+		catch (invalid_argument& e) {
+			waddstr(p_cmd, "Error in file output. Press any key to continue.");
+			wrefresh(p_cmd);
+			getch(); 
+			
+			wclear(p_cmd);
+			wrefresh(p_cmd);
+			delwin(p_cmd);
+			delete export_data;
+			return false;
+		}
+		
+		delwin(p_cmd);
+		delete export_data;
 		return true;
 	}
 	else {
+		delwin(p_cmd);
 		return false;
 	}
+}
+
+void text_editor::getstring(WINDOW* win, const string& prompt, string& input) {
+	wclear(win);
+	waddstr(win, prompt.c_str());
+	wrefresh(win);
+	
+	char ch;
+	input = "";
+	while ((ch = wgetch(win)) != '\n') {
+		if (ch == 8 || ch == 127 || ch == 7) {
+			if (input.length() > 0) {
+				input.pop_back();
+			}
+		}
+		else {
+			input += ch;
+		}
+
+		wclear(win);
+		waddstr(win, prompt.c_str());
+		waddstr(win, input.c_str());
+		wrefresh(win);
+	}	
+	
+	wclear(win);
+	wrefresh(win);
 }
 
 void text_editor::print_help() const {

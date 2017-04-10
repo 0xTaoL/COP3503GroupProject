@@ -1,5 +1,4 @@
 #include <string>
-#include <stdexcept>
 #include <fstream>
 #include "encryption.h"
 
@@ -92,7 +91,6 @@ string encryptor::import_file(const string& file_name) const {
 	fstream file(file_name, ios::binary | ios::in);
 	
 	if (!file.is_open()) {
-		file.close();
 		throw invalid_argument("File does not exist");
 	}
 	
@@ -123,4 +121,28 @@ string encryptor::import_file(const string& file_name) const {
 	
 	file.close();
 	return contents;
+}
+
+void encryptor::export_file(const string& filename, string& data) const {
+	fstream file(filename, ios::binary | ios::trunc | ios::out);
+	
+	if (!file.is_open()) {
+		throw invalid_argument("File does not exist");
+	}
+	
+	for (size_t i = 0; i < key.length(); ++i) {
+		file.put(key[i] >> 1);
+	}
+	
+	file.put('\n');
+	
+	if (data[data.length() - 1] != '\n') {
+		data += '\n';
+	}
+	
+	for (size_t i = 0; i < data.length(); ++i) {
+		file.put(data[i] ^ key[i % key.length()]);
+	}
+	
+	file.close();
 }
