@@ -15,10 +15,11 @@ text_editor::text_editor(const string& save_file):
 	//start screen output
 	refresh();
 	
-	buffer = "";
+	buffer = new vector<string>();
 }
 
 text_editor::~text_editor() {
+	delete buffer;
 	endwin();
 }
 
@@ -32,49 +33,25 @@ void text_editor::read_file() {
 		WINDOW* prompt = newwin(1, x_max - 1, y_max - 1, 0);
 		keypad(prompt, true);
 
-		char ch = 0;
 		string command = "Enter password to file: ";
 		string key = "";
 		
-		waddstr(prompt, command.c_str());
-		waddstr(prompt, key.c_str());
-		wrefresh(prompt);
-		
-		while ((ch = wgetch(prompt)) != '\n') {
-			if (ch == 8 || ch == 127 || ch == 7) {
-				if (key.length() > 0) {
-					key.pop_back();
-				}
-			}
-			else {
-				key += ch;
-			}
-
-			wclear(prompt);
-			waddstr(prompt, command.c_str());
-			waddstr(prompt, key.c_str());
-			wrefresh(prompt);
-		}
+		getstring(prompt, command, key);
 		
 		wclear(prompt);
 		wrefresh(prompt);
 		delwin(prompt);
 		
 		encryptor* ifile = new encryptor(key);
-		buffer = ifile->import_file(save_file);
+		ifile->import_file(save_file, buffer);
+		delete ifile;
 	}
 	else {
-		buffer = "";
+		buffer->push_back("");
 	}
-}
-
-void text_editor::write_file() const {
-    //TODO
 }
 
 void text_editor::run_text_editor() {
-	string command = "";
-
 	//create top bar window
 	unsigned int x_max, y_max;
 	getmaxyx(stdscr, y_max, x_max);
@@ -88,58 +65,96 @@ void text_editor::run_text_editor() {
 	
 	//load file into buffer
 	read_file();
-	wclear(text_window);
-	mvwaddstr(text_window, 0, 0, buffer.c_str());
+	print_buffer(text_window, 0, y_max);
 	wmove(text_window, 0, 0);
 	wrefresh(text_window);
 
 	int ch = 0;
+	size_t p_lines = 0, x = 0, y = 0;
 	while (ch = getch()) {
-		unsigned int x, y;
-		size_t buffer_size = buffer.length();
-		getyx(text_window, y, x);
+		size_t b_y = y + p_lines;
+		size_t buffer_size = buffer->size();
 		getmaxyx(text_window, y_max, x_max);
-		size_t buffer_pos = y * x_max + x;
 
 		//check if esc then go to command screen
-		if (ch == 27 && command_prompt()) {
-			break;
+		if (ch == 27) {
+			if (command_prompt()) break;
 		}
 		else {
 			switch (ch) {
 			case KEY_UP:
-				if (y > 0)
+				if (b_y > 0) {
 					--y;
+					if (x > buffer->at(b_y - 1).length()) {
+						x = buffer->at(b_y - 1).length();
+					}
+				}
 				break;
 			case KEY_RIGHT:
-				if (buffer_pos + 1 <= buffer_size)
+				if (x < buffer->at(y).length()) {
 					++x;
+				}
 				break;
 			case KEY_DOWN:
-				if (y < y_max && buffer_pos + x_max < buffer_size - 1)
+				if (b_y < buffer_size - 1) {
+					if (x > buffer->at(b_y + 1).length()) {
+						x = buffer->at(b_y + 1).length();
+					}
 					++y;
+				}
 				break;
 			case KEY_LEFT:
-				if (x > 0) 
+				if (x > 0) {
 					--x;
+				}
 				break;
 			default:
 				if (ch == 8 || ch == 127 || ch == 7 
 						|| ch == KEY_BACKSPACE) {
-					if (buffer_pos > 0) {
-						buffer.erase(buffer_pos - 1, 1);
+					if (x > 0) {
+						buffer->at(b_y).erase(x - 1, 1);
 						--x;
 					}
+					else if (x == 0) {
+						if (b_y > 0) {
+							x = buffer->at(b_y - 1).length();
+							buffer->at(b_y - 1) += buffer->at(b_y);
+							buffer->erase(buffer->begin() + b_y);
+							--y;
+						}
+					}
+				}
+				else if (ch == '\n') {
+					if (x == buffer->at(b_y).length()) {
+						buffer->insert(buffer->begin() + b_y + 1, "");
+					}
+					else {
+						string tmp;
+						tmp = buffer->at(b_y).substr(x, string::npos);
+						buffer->at(b_y).erase(x, string::npos);
+						buffer->insert(buffer->begin() + b_y + 1, tmp);
+					}
+					
+					++y;
+					x = 0;
 				}
 				else {
-					buffer.insert(buffer_pos, 1, ch);
+					buffer->at(b_y).insert(x, 1, ch);
 					++x;
 				}
 			}
 		}
+		
+		if (y == y_max) {
+			--y;
+			++p_lines;
+		}
+		else if (y > y_max) {
+			y = 0;
+			--p_lines;
+		}
 
-		wclear(text_window);
-		mvwaddstr(text_window, 0, 0, buffer.c_str());
+		print_buffer(text_window, p_lines, p_lines + y_max);
 		wmove(text_window, y, x);
 		wrefresh(text_window);
 	}
@@ -224,6 +239,23 @@ void text_editor::getstring(WINDOW* win, const string& prompt, string& input) {
 	}	
 	
 	wclear(win);
+	wrefresh(win);
+}
+
+void text_editor::print_buffer(WINDOW* win, size_t start, size_t end) {
+	if (end > buffer->size()) {
+		end = buffer->size();
+	}
+	if (start > buffer->size()) {
+		start = buffer->size() - 1;
+	}
+	
+	wclear(win);
+	
+	for (size_t i = start; i < end; ++i) {
+		waddstr(win, (buffer->at(i) + '\n').c_str());
+	}
+	
 	wrefresh(win);
 }
 

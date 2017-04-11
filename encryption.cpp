@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 #include <fstream>
 #include "encryption.h"
 
@@ -87,8 +88,9 @@ void encryptor::decrypt_file(const string& file_name) const {
 	file.close();
 }
 
-string encryptor::import_file(const string& file_name) const {
+void encryptor::import_file(const string& file_name, vector<string>* buffer) const {
 	fstream file(file_name, ios::binary | ios::in);
+	buffer->push_back("");
 	
 	if (!file.is_open()) {
 		throw invalid_argument("File does not exist");
@@ -108,11 +110,20 @@ string encryptor::import_file(const string& file_name) const {
 		throw runtime_error("Password is invalid");
 	}
 	
-	string contents;
+	size_t line = 0;
+	char ch;
 	for (size_t i = 0; file.good(); ++i) {
-		contents += file.get() ^ key[i % key.length()];
+		ch = file.get() ^ key[i % key.length()];
+		
+		if (ch == '\n') {
+			++line;
+			buffer->push_back("");
+		}
+		else {
+			buffer->at(line) += ch;
+		}
 	}
-	contents.pop_back();
+	buffer->back().pop_back();
 	
 	if (file.bad()) {
 		file.close();
@@ -120,10 +131,9 @@ string encryptor::import_file(const string& file_name) const {
 	}
 	
 	file.close();
-	return contents;
 }
 
-void encryptor::export_file(const string& filename, string& data) const {
+void encryptor::export_file(const string& filename, vector<string>* data) const {
 	fstream file(filename, ios::binary | ios::trunc | ios::out);
 	
 	if (!file.is_open()) {
@@ -136,12 +146,12 @@ void encryptor::export_file(const string& filename, string& data) const {
 	
 	file.put('\n');
 	
-	if (data[data.length() - 1] != '\n') {
-		data += '\n';
-	}
-	
-	for (size_t i = 0; i < data.length(); ++i) {
-		file.put(data[i] ^ key[i % key.length()]);
+	for (size_t i = 0; i < data->size(); ++i) {
+		for (size_t j = 0; j < data->at(i).length(); ++j) {
+			file.put(data->at(i).at(j) ^ key[j % key.length()]);
+		}
+		
+		file.put('\n' ^ key[data->at(i).length() % key.length()]);
 	}
 	
 	file.close();
