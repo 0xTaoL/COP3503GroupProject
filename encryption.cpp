@@ -5,13 +5,27 @@
 
 using namespace std;
 
+/*!
+ * Constructor
+ * @param key - password used to encrypt and decrypt
+ */
 encryptor::encryptor(const string& key):
 		key(key) {};
 
+/*!
+ * Compares given password with password used to encrypt
+ * @param user_key - password to verify
+ * @return - true if passwords match, otherwise false
+ */
 bool encryptor::validate_key(const string& user_key) const {
 	return (!user_key.compare(key)) ? true : false;
+
 }
 
+/*!
+ * Encrypts file
+ * @param file_name - name of file to be encrypted
+ */
 void encryptor::encrypt_file(const string& file_name) const {
 	fstream file(file_name, ios::binary | ios::in);
 	
@@ -46,6 +60,10 @@ void encryptor::encrypt_file(const string& file_name) const {
 	file.close();
 }
 
+/*!
+ * Decrypts file
+ * @param file_name - name of file to be decrypted
+ */
 void encryptor::decrypt_file(const string& file_name) const {
 	fstream file(file_name, ios::binary | ios::in);
 	
@@ -88,6 +106,11 @@ void encryptor::decrypt_file(const string& file_name) const {
 	file.close();
 }
 
+/*!
+ * Imports file
+ * @param file_name - name of file to be imported
+ * @param buffer - where file is read into
+ */
 void encryptor::import_file(const string& file_name, vector<string>* buffer) const {
 	fstream file(file_name, ios::binary | ios::in);
 	buffer->push_back("");
@@ -133,6 +156,11 @@ void encryptor::import_file(const string& file_name, vector<string>* buffer) con
 	file.close();
 }
 
+/*!
+ * Exports file
+ * @param filename - name of file to be exported
+ * @param data - file contents
+ */
 void encryptor::export_file(const string& filename, vector<string>* data) const {
 	fstream file(filename, ios::binary | ios::trunc | ios::out);
 	

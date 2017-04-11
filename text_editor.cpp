@@ -4,6 +4,10 @@
 
 using namespace std;
 
+/*!
+ * Constructor
+ * @param save_file - name of file
+ */
 text_editor::text_editor(const string& save_file):
 		save_file(save_file) {
 	initscr();
@@ -23,6 +27,9 @@ text_editor::~text_editor() {
 	endwin();
 }
 
+/*!
+ * Loads file into buffer
+ */
 void text_editor::read_file() {
 	struct stat st_buff;
 	
@@ -51,6 +58,9 @@ void text_editor::read_file() {
 	}
 }
 
+/*!
+ * Initializes text editor screen and handles key input
+ */
 void text_editor::run_text_editor() {
 	//create top bar window
 	unsigned int x_max, y_max;
@@ -162,6 +172,10 @@ void text_editor::run_text_editor() {
 	delwin(top_bar);
 }
 
+/*!
+ * Prompts user for command input
+ * @return - true if program should terminate, otherwise false
+ */
 bool text_editor::command_prompt() {
 	unsigned int x_max, y_max;
 	getmaxyx(stdscr, y_max, x_max);
@@ -215,6 +229,12 @@ bool text_editor::command_prompt() {
 	}
 }
 
+/*!
+ * Prompts for input on specified window and sets input to response
+ * @param win - window to prompt
+ * @param prompt - description string of input
+ * @param input - variable to store response in
+ */
 void text_editor::getstring(WINDOW* win, const string& prompt, string& input) {
 	wclear(win);
 	waddstr(win, prompt.c_str());
@@ -242,6 +262,12 @@ void text_editor::getstring(WINDOW* win, const string& prompt, string& input) {
 	wrefresh(win);
 }
 
+/*!
+ * Prints buffer to window
+ * @param win - window to transfer contents of buffer to
+ * @param start - start index of contents to be displayed
+ * @param end - end index of contents to be displayed
+ */
 void text_editor::print_buffer(WINDOW* win, size_t start, size_t end) {
 	if (end > buffer->size()) {
 		end = buffer->size();
@@ -259,6 +285,9 @@ void text_editor::print_buffer(WINDOW* win, size_t start, size_t end) {
 	wrefresh(win);
 }
 
+/*!
+ * Displays help dialog
+ */
 void text_editor::print_help() const {
 	//TODO
 }

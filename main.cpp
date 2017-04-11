@@ -6,6 +6,10 @@
 
 using namespace std;
 
+/*!
+ * Prints help dialog
+ * @param prog_name - name of program
+ */
 void print_help(const char* const& prog_name) {
 	cout << "Help: " << prog_name << "\n"
 		 << "-d [file] decrypt the specified file\n"	
@@ -13,6 +17,11 @@ void print_help(const char* const& prog_name) {
 		 << "-h show this help screen" << endl;
 }
 
+/*!
+ * Validates file name
+ * @param filename - name of file to be checked
+ * @return - true if valid name, false otherwise
+ */
 bool validate_name(const string& filename) {
 	size_t length = filename.length();
 
@@ -30,6 +39,12 @@ bool validate_name(const string& filename) {
 	return true;
 }
 
+/*!
+ * Main
+ * @param argc - argument count
+ * @param argv - argument value
+ * @return - program success
+ */
 int main(int argc, char** argv) {
 	string name;
 	size_t option;
