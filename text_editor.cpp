@@ -223,6 +223,11 @@ bool text_editor::command_prompt() {
 		delete export_data;
 		return true;
 	}
+	else if (command.compare("help") == 0) {
+		print_help();
+		delwin(p_cmd);
+		return false;
+	}
 	else {
 		delwin(p_cmd);
 		return false;
@@ -289,5 +294,23 @@ void text_editor::print_buffer(WINDOW* win, size_t start, size_t end) {
  * Displays help dialog
  */
 void text_editor::print_help() const {
-	//TODO
+	unsigned int x_max, y_max;
+	getmaxyx(stdscr, y_max, x_max);
+
+	WINDOW* help_win = newwin(6, 40, (y_max - 6) / 2, (x_max - 40) / 2);
+
+	string message =	"Commands:\n"
+						"help - display this text\n"
+						"save - save the file\n"
+						"quit - exit the program (does NOT save)\n\n"
+						"Press any key to exit this dialog";
+
+	waddstr(help_win, message.c_str());
+	wrefresh(help_win);
+
+	getch();
+	wclear(help_win);
+	wrefresh(help_win);
+
+	delwin(help_win);
 }
