@@ -93,7 +93,10 @@ void text_editor::run_text_editor() {
 		else {
 			switch (ch) {
 			case KEY_UP:
-				if (b_y > 0) {
+				if (x >= x_max) {
+					x -= x_max;
+				}
+				else if (b_y > 0) {
 					--y;
 					if (x > buffer->at(b_y - 1).length()) {
 						x = buffer->at(b_y - 1).length();
@@ -106,10 +109,14 @@ void text_editor::run_text_editor() {
 				}
 				break;
 			case KEY_DOWN:
-				if (b_y < buffer_size - 1) {
+				if (x + x_max <= buffer->at(b_y).length()) {
+					x += x_max;
+				}
+				else if (b_y < buffer_size - 1) {
 					if (x > buffer->at(b_y + 1).length()) {
 						x = buffer->at(b_y + 1).length();
 					}
+					
 					++y;
 				}
 				break;
@@ -164,8 +171,10 @@ void text_editor::run_text_editor() {
 			--p_lines;
 		}
 
+		size_t e_lines = get_extra_lines(b_y, x_max);
+		
 		print_buffer(text_window, p_lines, p_lines + y_max);
-		wmove(text_window, y, x);
+		wmove(text_window, y + x/x_max + e_lines, x % x_max);
 		wrefresh(text_window);
 	}
 
@@ -288,6 +297,16 @@ void text_editor::print_buffer(WINDOW* win, size_t start, size_t end) {
 	}
 	
 	wrefresh(win);
+}
+
+size_t text_editor::get_extra_lines(size_t line, size_t x_max) {
+	size_t e_lines = 0;
+	
+	for (size_t i = 0; i < line && i < buffer->size(); ++i) {
+		e_lines += buffer->at(i).length() / x_max;
+	}
+	
+	return e_lines;
 }
 
 /*!

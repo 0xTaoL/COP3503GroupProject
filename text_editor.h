@@ -15,6 +15,7 @@ class text_editor {
 	void save();
 	void getstring(WINDOW*, const std::string&, std::string&);
 	void print_buffer(WINDOW*, size_t, size_t);
+	size_t get_extra_lines(size_t, size_t);
 	
 public:
 	text_editor(const std::string& save_file);
