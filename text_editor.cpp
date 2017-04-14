@@ -118,6 +118,7 @@ void text_editor::run_text_editor() {
 					}
 					
 					++y;
+					++b_y;
 				}
 				break;
 			case KEY_LEFT:
@@ -153,6 +154,7 @@ void text_editor::run_text_editor() {
 					}
 					
 					++y;
+					++b_y;
 					x = 0;
 				}
 				else {
