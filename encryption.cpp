@@ -174,12 +174,18 @@ void encryptor::export_file(const string& filename, vector<string>* data) const 
 	
 	file.put('\n');
 	
+	size_t count = 0;
 	for (size_t i = 0; i < data->size(); ++i) {
 		for (size_t j = 0; j < data->at(i).length(); ++j) {
-			file.put(data->at(i).at(j) ^ key[j % key.length()]);
+			file.put(data->at(i).at(j) ^ key[count % key.length()]);
+			
+			++count;
 		}
 		
-		file.put('\n' ^ key[data->at(i).length() % key.length()]);
+		if (i != data->size() - 1 || data->at(i).length() != 0) {
+			file.put('\n' ^ key[count % key.length()]);
+			++count;
+		}
 	}
 	
 	file.close();
