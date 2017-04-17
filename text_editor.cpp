@@ -303,6 +303,12 @@ void text_editor::print_buffer(WINDOW* win, size_t start, size_t end) {
 	wrefresh(win);
 }
 
+/*!
+ * Calculates number of lines added due to text wrapping
+ * @param line - line number
+ * @param x_max - maximum horizontal characters
+ * @return - number of additional lines
+ */
 size_t text_editor::get_extra_lines(size_t line, size_t x_max) {
 	size_t e_lines = 0;
 	
