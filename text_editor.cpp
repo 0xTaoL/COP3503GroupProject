@@ -92,6 +92,8 @@ void text_editor::run_text_editor() {
 		}
 		else {
 			switch (ch) {
+			case KEY_RESIZE:
+				break;
 			case KEY_UP:
 				if (x >= x_max) {
 					x -= x_max;
@@ -195,7 +197,7 @@ bool text_editor::command_prompt() {
 	keypad(p_cmd, true);
 
 	string command;
-	getstring(p_cmd, "", command);
+	getstring(p_cmd, ":", command);
 	
 	if (command.compare("quit") == 0) {
 		delwin(p_cmd);
